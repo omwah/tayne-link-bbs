@@ -256,6 +256,52 @@
     { name: "TAYNE7.DAT", size: "???", desc: "File length is increasing", requires: "render_4" }
   ];
 
+  const FILE_CONTENT = {
+    "BASIC_TAYNE.CHP": [
+      "CHOREOGRAPHY PACKET: BASIC_TAYNE",
+      "LEFT ARM ........ RELUCTANT",
+      "RIGHT ARM ....... OVERCONFIDENT",
+      "PELVIS .......... MANAGEMENT LOCKED",
+      "NOTE: Natural movement must remain disabled."
+    ],
+    "CELERY_STEP.CHP": [
+      "CHOREOGRAPHY PACKET: CELERY_STEP",
+      "SOURCE MEDIA: DAMAGED 5.25-INCH DISK",
+      "VEGETABLE CHANNEL ........ READY",
+      "MAN CHANNEL ............... UNCONFIRMED",
+      "TYPE CELERY AT THE PROMPT."
+    ],
+    "TAYNE01.ANS": [
+      "       _____TAYNE_____",
+      "      /      |        \\",
+      "     /    GOLD SYSTEM   \\",
+      "          /   \\",
+      "",
+      "NOW AVAILABLE AT 2400 BAUD",
+      "ONE COMPLIMENTARY RENDER PER CALLER*",
+      "*CALL MAY NOT CONCLUDE"
+    ],
+    "TEXTILE.DOC": [
+      "TAYNE/LINK TEXTILE SUBSYSTEM",
+      "",
+      "Gold is not decorative.",
+      "Gold is the visible portion of the containment layer.",
+      "Removing textiles may expose the operator to the render.",
+      "The operator is defined as whoever is reading this."
+    ],
+    "CALLBACK.CHP": [
+      "The file contains no bytes.",
+      "It is still typing."
+    ],
+    "TAYNE7.DAT": [
+      "RECORD OWNER: {{HANDLE}}",
+      "RENDER COUNT: {{RENDERS}}",
+      "FILE ORIGIN: TOMORROW",
+      "LOCAL CHECKSUM: REMOTE CHECKSUM",
+      "END OF FILE NOT YET RECEIVED"
+    ]
+  };
+
   let storageAvailable = true;
   let connecting = false;
   let state = loadState();
@@ -577,12 +623,31 @@
   }
 
   function listFiles() {
-    const lines = ["FILES", "NAME             SIZE  DESCRIPTION", "---------------  ----  --------------------------------"];
+    const lines = ["FILES", "  NAME             SIZE  DESCRIPTION", "  ---------------  ----  --------------------------------"];
     for (const file of visibleFiles()) {
-      lines.push(`${file.name.padEnd(16)} ${file.size.padStart(4)}  ${file.desc}`);
+      const marker = state.downloaded.includes(file.name) ? "*" : " ";
+      lines.push(`${marker} ${file.name.padEnd(16)} ${file.size.padStart(4)}  ${file.desc}`);
     }
-    lines.push("", "Use DOWNLOAD <filename>.");
+    lines.push("", "* Downloaded", "Use DOWNLOAD <filename>, then TYPE <filename>.");
     return lines;
+  }
+
+  function typeFile(name) {
+    const file = visibleFiles().find(candidate => candidate.name === name.toUpperCase());
+    if (!file) return ["File not found."];
+    if (!state.downloaded.includes(file.name)) {
+      return [`${file.name} is not local.`, `Use DOWNLOAD ${file.name} first.`];
+    }
+
+    const content = (FILE_CONTENT[file.name] || ["No readable records found."]).map(line => line
+      .replace("{{HANDLE}}", state.handle)
+      .replace("{{RENDERS}}", String(state.renders)));
+    return [
+      `TYPE ${file.name}`,
+      "----------------------------------------",
+      ...content,
+      "----------------------------------------"
+    ];
   }
 
   function downloadFile(name) {
@@ -709,6 +774,7 @@
           "MAIL [#]             List/read private mail",
           "FILES                List downloads",
           "DOWNLOAD <file>      Download a file",
+          "TYPE/VIEW <file>     Read a downloaded file",
           "PROFILE              View render profile",
           "SET <field> <value>  Change render setting",
           "RENDER               Generate a Tayne",
@@ -728,6 +794,8 @@
       case "MAIL": lines = args.length ? readMail(args[0]) : listMail(); break;
       case "FILES": lines = listFiles(); break;
       case "DOWNLOAD": lines = downloadFile(args.join(" ")); break;
+      case "TYPE":
+      case "VIEW": lines = typeFile(args.join(" ")); break;
       case "PROFILE": lines = profileLines(); break;
       case "SET": lines = setProfile(args[0] || "", args.slice(1).join(" ")); break;
       case "WHO": lines = whoLines(); break;
