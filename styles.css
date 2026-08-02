@@ -51,6 +51,7 @@ button, input { font: inherit; }
 .crt-glass {
   position: relative;
   overflow: hidden;
+  height: min(78vh, 760px);
   min-height: min(78vh, 760px);
   display: grid;
   grid-template-rows: auto 1fr auto auto;
@@ -317,7 +318,7 @@ body.connecting::before {
 @media (max-width: 720px) {
   .app { padding: 6px; }
   .crt-shell { border-radius: 22px; padding: 8px; }
-  .crt-glass { min-height: 76vh; border-radius: 16px / 24px; }
+  .crt-glass { height: 76vh; min-height: 76vh; border-radius: 16px / 24px; }
   .terminal { padding: 12px 12px 6px; font-size: .78rem; }
   .topbar, .statusbar { padding-inline: 10px; }
   .controls { grid-template-columns: repeat(3, 1fr); }

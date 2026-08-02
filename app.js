@@ -366,12 +366,25 @@
     return "green";
   }
 
+  function scrollOutputToBottom({ includePage = false } = {}) {
+    // Reading scrollHeight flushes the new line's layout, so move the terminal
+    // immediately as well as after the browser's next layout pass.
+    terminal.scrollTop = terminal.scrollHeight;
+    requestAnimationFrame(() => {
+      terminal.scrollTop = terminal.scrollHeight;
+      if (includePage) {
+        commandForm.scrollIntoView({ block: "end", behavior: "auto" });
+      }
+      terminal.scrollTop = terminal.scrollHeight;
+    });
+  }
+
   function appendLine(text = "", color = null, extraClass = "") {
     const line = document.createElement("div");
     line.className = `line ${color || colorForLine(text)} ${extraClass}`.trim();
     line.textContent = text;
     terminal.appendChild(line);
-    terminal.scrollTop = terminal.scrollHeight;
+    scrollOutputToBottom({ includePage: document.activeElement === commandInput });
     return line;
   }
 
@@ -1079,17 +1092,22 @@
     if (commandInput.disabled) return;
     const value = commandInput.value;
     commandInput.value = "";
-    processCommand(value).catch(error => {
-      console.error(error);
-      writeLines(["SYSTEM ERROR: Tayne continued anyway."], { color: "danger" });
-    });
+    scrollOutputToBottom({ includePage: true });
+    processCommand(value)
+      .catch(error => {
+        console.error(error);
+        return writeLines(["SYSTEM ERROR: Tayne continued anyway."], { color: "danger" });
+      })
+      .finally(() => scrollOutputToBottom({ includePage: true }));
   });
 
   document.querySelectorAll("[data-command]").forEach(button => {
     button.addEventListener("click", () => {
       if (!state.connected) return;
-      processCommand(button.dataset.command);
+      processCommand(button.dataset.command)
+        .finally(() => scrollOutputToBottom({ includePage: true }));
       commandInput.focus();
+      scrollOutputToBottom({ includePage: true });
     });
   });
 
