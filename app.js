@@ -443,7 +443,8 @@
   }
 
   function syncCommandCursor() {
-    commandMeasure.textContent = commandInput.value;
+    const caret = commandInput.selectionStart ?? commandInput.value.length;
+    commandMeasure.textContent = commandInput.value.slice(0, caret);
   }
 
   function appendLine(text = "", color = null, extraClass = "") {
@@ -1299,8 +1300,16 @@
       commandInput.value = historyIndex === state.history.length ? historyDraft : state.history[historyIndex];
     }
 
-    syncCommandCursor();
     commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length);
+    syncCommandCursor();
+  });
+  commandInput.addEventListener("click", syncCommandCursor);
+  commandInput.addEventListener("select", syncCommandCursor);
+  commandInput.addEventListener("keyup", event => {
+    if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) syncCommandCursor();
+  });
+  document.addEventListener("selectionchange", () => {
+    if (document.activeElement === commandInput) syncCommandCursor();
   });
   renderDialog.addEventListener("close", () => {
     cancelAnimationFrame(animationFrame);
