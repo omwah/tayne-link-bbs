@@ -35,6 +35,7 @@ CAN I GET INTO THIS
 ```
 
 Progress is saved in `localStorage`. Use `RESET CONFIRM` to restart.
+Use the Up and Down arrow keys to browse previous terminal commands.
 
 ## Design notes
 

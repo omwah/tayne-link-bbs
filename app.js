@@ -4,6 +4,7 @@
   const terminal = document.getElementById("terminal");
   const commandForm = document.getElementById("commandForm");
   const commandInput = document.getElementById("commandInput");
+  const commandMeasure = document.getElementById("commandMeasure");
   const promptLabel = document.getElementById("promptLabel");
   const connectDialog = document.getElementById("connectDialog");
   const connectForm = document.getElementById("connectForm");
@@ -264,6 +265,9 @@
   let animationFrame = null;
   let renderStart = 0;
   let renderVariant = 0;
+  let historyIndex = null;
+  let historyDraft = "";
+  let sessionCurse = 0;
 
   function cloneDefault() {
     return JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -353,9 +357,22 @@
   function setIncursion(level) {
     state.incursion = Math.max(state.incursion, Math.min(6, level));
     app.dataset.incursion = String(state.incursion);
-    const labels = ["CLEAN", "UNSTABLE", "PRESENT", "MUTATING", "OBSERVING", "OPEN", "CALLBACK"];
-    incursionStatus.textContent = `LINK: ${labels[state.incursion]}`;
+    syncCursePresentation();
     saveState();
+  }
+
+  function syncCursePresentation() {
+    const curseLevel = Math.max(state.incursion, sessionCurse);
+    const labels = ["CLEAN", "UNSTABLE", "PRESENT", "MUTATING", "OBSERVING", "OPEN", "CALLBACK"];
+    app.dataset.curse = String(curseLevel);
+    incursionStatus.textContent = `LINK: ${labels[curseLevel]}`;
+    baudStatus.textContent = curseLevel >= 6 ? "∞ BAUD" : curseLevel >= 4 ? "2400? BAUD" : "2400 BAUD";
+    if (state.connected) {
+      if (curseLevel >= 6) promptLabel.textContent = "INCOMING>";
+      else if (curseLevel >= 5) promptLabel.textContent = "TAYNE>";
+      else if (curseLevel >= 4) promptLabel.textContent = `TAYNE/${state.handle}>`;
+      else promptLabel.textContent = `${state.handle}>`;
+    }
   }
 
   function colorForLine(text) {
@@ -377,6 +394,10 @@
       }
       terminal.scrollTop = terminal.scrollHeight;
     });
+  }
+
+  function syncCommandCursor() {
+    commandMeasure.textContent = commandInput.value;
   }
 
   function appendLine(text = "", color = null, extraClass = "") {
@@ -428,6 +449,7 @@
     state.handle = sanitizeHandle(handleInput.value) || "DANCINMANIAC";
     state.callsMade += 1;
     state.connected = true;
+    sessionCurse = 0;
     connectionStartedAt = Date.now();
 
     // Close first. Storage can be unavailable in attachment previews and local files.
@@ -457,6 +479,7 @@
     if (state.renders >= 3) {
       await writeLines(["The board remembers you."], { color: "danger", glitch: true });
     }
+    setIncursion(state.incursion);
     commandInput.disabled = false;
     commandInput.focus();
     connectButton.disabled = false;
@@ -612,7 +635,19 @@
       case "COMPLIANCE": p.compliance = clampInt(value, 0, 100); break;
       case "CERTAINTY": p.certainty = clampInt(value, 0, 100); break;
       case "HAT": p.hat = clampInt(value, 0, 100); break;
-      case "CHOREOGRAPHY": p.choreography = value.toUpperCase().replace(/[^A-Z0-9_]/g, "_"); break;
+      case "CHOREOGRAPHY":
+        if (!value.trim()) {
+          return [
+            "CHOREOGRAPHY OPTIONS",
+            "BASIC_TAYNE",
+            "CELERY_STEP",
+            "CELERY_MAN",
+            "",
+            `CURRENT: ${p.choreography}`
+          ];
+        }
+        p.choreography = value.toUpperCase().replace(/[^A-Z0-9_]/g, "_");
+        break;
       case "QUALITY": {
         const v = value.toUpperCase();
         if (!["ANSI", "VGA", "FORBIDDEN"].includes(v)) return ["Allowed quality: ANSI, VGA, FORBIDDEN."];
@@ -732,10 +767,10 @@
         lines = ["TEXTILES ARE FILES THAT TOUCH THE BODY.", `CURRENT TEXTILE: ${state.profile.textile}`];
         break;
       case "CELERY":
-        state.profile.choreography = "CELERY_STEP";
-        addFlag("celery");
+        state.profile.choreography = "CELERY_MAN";
+        addFlag("celery_man");
         saveState();
-        lines = ["CELERY STEP LOADED.", "Vegetable input accepted as choreography."];
+        lines = ["CELERY MAN OPTION LOADED.", "Please stand by for vegetable render transport."];
         break;
       case "CAN":
         if (input === "CAN I GET INTO THIS") {
@@ -774,7 +809,11 @@
         lines = unknownCommand(input);
     }
 
-    await writeLines(["", ...lines, ""], { delay: state.incursion >= 4 ? 18 : 8, glitch: state.incursion >= 5 && Math.random() < .25 });
+    const activeCurse = Math.max(state.incursion, sessionCurse);
+    await writeLines(["", ...lines, ""], {
+      delay: activeCurse >= 4 ? 18 : 8,
+      glitch: activeCurse >= 5 && Math.random() < .25
+    });
   }
 
   function chatResponse(target) {
@@ -805,8 +844,10 @@
     commandInput.disabled = true;
     const renderNo = state.renders + 1;
     const p = state.profile;
+    const celeryMan = p.choreography === "CELERY_MAN";
     const phases = [
       "ALLOCATING HUMAN GEOMETRY...",
+      ...(celeryMan ? ["WETTING CELERY...", "IDENTIFYING MAN..."] : []),
       `APPLYING TEXTILES: ${p.textile}...`,
       `NEGOTIATING WITH LEFT ELBOW: ${100 - p.compliance}% RESISTANCE...`,
       `INSTALLING FACIAL CERTAINTY: ${p.certainty}%...`,
@@ -830,6 +871,20 @@
     if (renderNo >= 6) setIncursion(6);
     saveState();
 
+    const manifestations = [
+      "Render residue detected in terminal memory.",
+      "WARNING: Video buffer contains an additional posture.",
+      "The cursor moved while movement was disabled.",
+      "TAYNE has joined channel #LOCAL.",
+      "Terminal ownership could not be verified.",
+      "YOU ARE THE REMOTE SYSTEM."
+    ];
+    await writeLines([manifestations[Math.min(renderNo, manifestations.length) - 1], ""], {
+      delay: 90,
+      color: "danger",
+      glitch: renderNo >= 2
+    });
+
     playRenderSound(renderNo);
     openRender(renderNo);
     commandInput.disabled = false;
@@ -837,7 +892,10 @@
 
   function openRender(number) {
     renderVariant = number;
-    renderTitle.textContent = number >= 4 ? `TAYNE RENDER ${number} // OBSERVER ACTIVE` : `TAYNE RENDER ${number}`;
+    const celeryMan = state.profile.choreography === "CELERY_MAN";
+    renderTitle.textContent = celeryMan
+      ? `CELERY MAN RENDER ${number}`
+      : number >= 4 ? `TAYNE RENDER ${number} // OBSERVER ACTIVE` : `TAYNE RENDER ${number}`;
     renderMeta.textContent = `${state.profile.quality} // ${state.profile.choreography}`;
     renderDialog.showModal();
     renderStart = performance.now();
@@ -853,6 +911,7 @@
 
   function drawTayne(t, variant) {
     const p = state.profile;
+    const celeryMan = p.choreography === "CELERY_MAN";
     const w = canvas.width;
     const h = canvas.height;
     const pink = Math.round(120 + p.pink * 1.2);
@@ -878,7 +937,7 @@
     ctx.scale(scale, scale);
 
     const skin = variant >= 5 ? "#ead9bd" : "#d8c4a2";
-    const gold = p.textile === "CORPORATE" ? "#8da2b8" : "#d7a300";
+    const gold = celeryMan ? "#63a844" : p.textile === "CORPORATE" ? "#8da2b8" : "#d7a300";
     const textileVisible = p.textile !== "ABSENT";
 
     drawLeg(-34, 0, -18 + wobble * .25, -92, gold, textileVisible);
@@ -909,6 +968,11 @@
     drawArm(-58, -142, -110, -112 + armLift, -122 + wobble, -58, gold, skin, textileVisible);
     drawArm(58, -142, 105, -96 - armLift, 125 - wobble, -38, gold, skin, textileVisible);
 
+    if (celeryMan) {
+      drawCeleryBunch(-122 + wobble, -58, -.22);
+      drawCeleryBunch(125 - wobble, -38, .25);
+    }
+
     ctx.fillStyle = skin;
     ctx.fillRect(-13, -190, 26, 34);
     ctx.beginPath();
@@ -926,10 +990,10 @@
 
     drawHat(wobble, -278 + Math.sin(beat) * 2, p.hat);
 
-    if (variant >= 3) {
+    if (variant >= 3 || celeryMan) {
       ctx.fillStyle = "rgba(255,255,255,.78)";
       ctx.font = "16px Courier New";
-      ctx.fillText(variant >= 5 ? state.handle : "NOW THIS I CAN GET INTO", -150, 55);
+      ctx.fillText(celeryMan ? "CELERY MAN" : variant >= 5 ? state.handle : "NOW THIS I CAN GET INTO", -150, 55);
     }
 
     ctx.restore();
@@ -973,6 +1037,28 @@
     ctx.beginPath();
     ctx.ellipse(wx, wy, 11, 25, .15, 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  function drawCeleryBunch(x, y, rotation) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.strokeStyle = "#b5dc65";
+    ctx.lineWidth = 7;
+    ctx.lineCap = "round";
+    [-8, 0, 8].forEach((offset, index) => {
+      ctx.beginPath();
+      ctx.moveTo(offset, 5);
+      ctx.lineTo(offset + (index - 1) * 5, -61 - index * 5);
+      ctx.stroke();
+    });
+    ctx.fillStyle = "#4f9f42";
+    [[-15, -66], [2, -77], [17, -65], [-3, -57]].forEach(([leafX, leafY]) => {
+      ctx.beginPath();
+      ctx.ellipse(leafX, leafY, 13, 8, leafX * .025, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
   }
 
   function drawHat(wobble, y, authority) {
@@ -1027,6 +1113,24 @@
       return;
     }
     const elapsed = Math.floor((Date.now() - connectionStartedAt) / 1000);
+    const curseThresholds = [45, 90, 150, 240, 360, 540];
+    const nextSessionCurse = curseThresholds.filter(seconds => elapsed >= seconds).length;
+    if (nextSessionCurse !== sessionCurse) {
+      sessionCurse = nextSessionCurse;
+      syncCursePresentation();
+      const sessionManifestations = [
+        "Connection age is now being measured from the other end.",
+        "Idle time has begun moving.",
+        "The terminal has been online longer than you have.",
+        "Carrier signal detected inside the keyboard.",
+        "Session timeout declined your request.",
+        "THIS CONNECTION PRECEDES DIALING."
+      ];
+      writeLines(["", sessionManifestations[sessionCurse - 1], ""], {
+        color: "danger",
+        glitch: sessionCurse >= 2
+      });
+    }
     const h = String(Math.floor(elapsed / 3600)).padStart(2, "0");
     const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
     const s = String(elapsed % 60).padStart(2, "0");
@@ -1092,6 +1196,9 @@
     if (commandInput.disabled) return;
     const value = commandInput.value;
     commandInput.value = "";
+    syncCommandCursor();
+    historyIndex = null;
+    historyDraft = "";
     scrollOutputToBottom({ includePage: true });
     processCommand(value)
       .catch(error => {
@@ -1101,17 +1208,32 @@
       .finally(() => scrollOutputToBottom({ includePage: true }));
   });
 
-  document.querySelectorAll("[data-command]").forEach(button => {
-    button.addEventListener("click", () => {
-      if (!state.connected) return;
-      processCommand(button.dataset.command)
-        .finally(() => scrollOutputToBottom({ includePage: true }));
-      commandInput.focus();
-      scrollOutputToBottom({ includePage: true });
-    });
-  });
-
   terminal.addEventListener("click", () => commandInput.focus());
+  commandInput.addEventListener("input", () => {
+    historyIndex = null;
+    historyDraft = commandInput.value;
+    syncCommandCursor();
+  });
+  commandInput.addEventListener("keydown", event => {
+    if (!["ArrowUp", "ArrowDown"].includes(event.key) || commandInput.disabled || !state.history.length) return;
+    event.preventDefault();
+
+    if (historyIndex === null) {
+      historyIndex = state.history.length;
+      historyDraft = commandInput.value;
+    }
+
+    if (event.key === "ArrowUp") {
+      historyIndex = Math.max(0, historyIndex - 1);
+      commandInput.value = state.history[historyIndex];
+    } else {
+      historyIndex = Math.min(state.history.length, historyIndex + 1);
+      commandInput.value = historyIndex === state.history.length ? historyDraft : state.history[historyIndex];
+    }
+
+    syncCommandCursor();
+    commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length);
+  });
   renderDialog.addEventListener("close", () => {
     cancelAnimationFrame(animationFrame);
     commandInput.focus();
@@ -1125,8 +1247,8 @@
   });
 
   setInterval(updateClock, 1000);
+  syncCommandCursor();
   app.dataset.incursion = String(state.incursion || 0);
   setIncursion(state.incursion || 0);
-  baudStatus.textContent = state.incursion >= 6 ? "∞ BAUD" : "2400 BAUD";
   showConnectDialog();
 })();
