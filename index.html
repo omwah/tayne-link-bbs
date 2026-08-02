@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main id="app" class="app" data-incursion="0">
+  <main id="app" class="app" data-incursion="0" data-curse="0">
     <section class="crt-shell" aria-label="Tayne Link BBS terminal">
       <div class="crt-glass">
         <header class="topbar">
@@ -20,8 +20,11 @@
 
         <form id="commandForm" class="command-line" autocomplete="off">
           <label for="commandInput" id="promptLabel">TAYNE/LINK&gt;</label>
-          <input id="commandInput" name="command" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="BBS command" />
-          <span class="cursor" aria-hidden="true"></span>
+          <span class="command-editor">
+            <input id="commandInput" name="command" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="BBS command" />
+            <span id="commandMeasure" class="command-measure" aria-hidden="true"></span>
+            <span class="cursor" aria-hidden="true"></span>
+          </span>
         </form>
 
         <footer class="statusbar">
@@ -33,14 +36,6 @@
       </div>
     </section>
 
-    <section class="controls" aria-label="Quick commands">
-      <button data-command="HELP">HELP</button>
-      <button data-command="BOARDS">BOARDS</button>
-      <button data-command="MAIL">MAIL</button>
-      <button data-command="FILES">FILES</button>
-      <button data-command="PROFILE">PROFILE</button>
-      <button data-command="RENDER">RENDER</button>
-    </section>
   </main>
 
   <dialog id="renderDialog" class="render-dialog">
