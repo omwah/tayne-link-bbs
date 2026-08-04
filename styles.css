@@ -360,6 +360,15 @@ body.connecting::before {
   93% { opacity: .985; }
 }
 
+/* Render-level corruption (data-incursion) */
+.app[data-incursion="6"] .render-dialog {
+  filter: hue-rotate(90deg) saturate(1.5) contrast(1.2);
+}
+.app[data-incursion="6"] .render-frame canvas {
+  image-rendering: pixelated;
+  filter: contrast(1.3) brightness(0.85);
+}
+
 @media (max-width: 720px) {
   .app { padding: 6px; }
   .crt-shell { border-radius: 22px; padding: 8px; }
