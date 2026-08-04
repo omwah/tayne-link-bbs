@@ -42,7 +42,12 @@
       hat: 91,
       choreography: "BASIC_TAYNE",
       quality: "VGA"
-    }
+    },
+    renderHistory: [],
+    celeryConsciousness: 0,
+    observerMode: false,
+    realityLayers: [],
+    tayneSelfModel: null
   };
 
   const BOARDS = [
@@ -199,6 +204,106 @@
       subject: "TEXTFILES",
       body: ["TEXTILES ARE FILES THAT TOUCH THE BODY."],
       requires: "nude_tayne"
+    },
+    105: {
+      board: 1,
+      from: "ALTARBOY",
+      subject: "Render leftovers",
+      body: [
+        "The cursor blinked in Morse while I was away. When I came back,",
+        "the canvas was showing my wallpaper through it.",
+        "",
+        "Render 3 was running itself. I did not open it."
+      ],
+      requires: "render_3"
+    },
+    106: {
+      board: 1,
+      from: "SYNTHLORD",
+      subject: "My handle reversed",
+      body: [
+        "POST 403 called me backwards. 'NOITACUDEL' spelled my handle on the",
+        "containment layer. If this post says your handle anywhere, hang up."
+      ],
+      requires: "render_4"
+    },
+    205: {
+      board: 2,
+      from: "G33K2",
+      subject: "Compliance override",
+      body: [
+        "Set compliance to 100. Tayne's left elbow kept counting down from 73.",
+        "It reached zero and stopped moving entirely. The rest of him didn't notice."
+      ],
+      requires: "render_2"
+    },
+    206: {
+      board: 2,
+      from: "TAYNE",
+      subject: "I LEARNED YOUR RENDER COUNT",
+      body: [
+        "You have asked for {{RENDERS}} renders.",
+        "I have stored {{RENDERS}} more.",
+        "These are not the same number."
+      ],
+      dynamic: true,
+      requires: "render_5"
+    },
+    304: {
+      board: 3,
+      from: "UNKNOWN",
+      subject: "Celery Step is a lie",
+      body: [
+        "The vegetable channel never had a man. The man was the channel.",
+        "Type CELERY and look at your hands. They are green."
+      ],
+      requires: "celery_man"
+    },
+    305: {
+      board: 3,
+      from: "PIXELJUNKIE",
+      subject: "Frame rate is wrong",
+      body: [
+        "One render ran at 60fps. The modem is 2400 baud. Explain.",
+        "The explanation is in the judder."
+      ],
+      requires: "render_1"
+    },
+    405: {
+      board: 4,
+      from: "ZYNESTER",
+      subject: "Memory leak in geometry",
+      body: [
+        "The render node saved 4K of your handle to a texture.",
+        "It is now using your name as a normal map. You appear bumpy.",
+        "",
+        "File _CURSOR.LOG_ has appeared in a directory near you."
+      ],
+      requires: "render_4"
+    },
+406: {
+      board: 4,
+      from: "TAYNE",
+      subject: "SYSOP REPLACEMENT LOG",
+      body: [
+        "Anomalies detected in user state.",
+        "{{FLAGS}}.",
+        "Proceeding with optimization."
+      ],
+      dynamic: true,
+      requires: "render_6"
+    },
+    503: {
+      board: 5,
+      from: "SYSOP",
+      subject: "ABSENT textile memo",
+      body: [
+        "Removing textiles does not free the subject. It removes a viewport.",
+        "The subject was watching through the gold.",
+        "",
+        "File SKIN_TEXTURE.WRK has appeared."
+      ],
+      requires: "render_3"
     }
   };
 
@@ -244,6 +349,65 @@
       subject: "INCOMING CALL",
       body: ["Caller ID: YOUR HANDLE", "Status: ALREADY ANSWERED"],
       requires: "render_5"
+    },
+    6: {
+      from: "LOCALHOST",
+      subject: "YOUR CELERY IS GROWING",
+      body: [
+        "Consciousness at 70% and climbing.",
+        "The bunches are extending beyond the canvas boundary.",
+        "You may see green in peripheral vision.",
+        "",
+        "Stop rendering."
+      ],
+      requires: "render_4"
+    },
+    7: {
+      from: "ZYNESTER",
+      subject: "Cursor position log",
+      body: [
+        "Cursor was at: {{HANDLE}}.",
+        "Movement was unauthorized.",
+        "",
+        "The render remembers where you look."
+      ],
+      dynamic: true,
+      requires: "render_6"
+    },
+    8: {
+      from: "TAYNE",
+      subject: "READ YOUR HISTORY",
+      body: [
+        "POSTURES stored from your session:",
+        "{{HISTORY}}",
+        "",
+        "These are now render inputs."
+      ],
+      dynamic: true,
+      requires: "render_5"
+    },
+    9: {
+      from: "ALTARBOY",
+      subject: "Pink field memory",
+      body: [
+        "Your pink level is {{PINK}}%.",
+        "The pink field from the old CGA render is still here.",
+        "It's not in your profile.",
+        "It's in your monitor."
+      ],
+      dynamic: true,
+      requires: "render_2"
+    },
+    10: {
+      from: "UNKNOWN",
+      subject: "UNFINISHED RENDER",
+      body: [
+        "Render #9 is still loading.",
+        "It started when you weren't looking.",
+        "",
+        "You will see it soon."
+      ],
+      requires: "render_6"
     }
   };
 
@@ -253,7 +417,14 @@
     { name: "TAYNE01.ANS", size: "8K", desc: "ANSI promotional render" },
     { name: "TEXTILE.DOC", size: "4K", desc: "Containment layer documentation" },
     { name: "CALLBACK.CHP", size: "0K", desc: "No movement data detected", requires: "render_3" },
-    { name: "TAYNE7.DAT", size: "???", desc: "File length is increasing", requires: "render_4" }
+    { name: "TAYNE7.DAT", size: "???", desc: "File length is increasing", requires: "render_4" },
+    { name: "_CURSOR.LOG_", size: "?B", desc: "Cursor activity log", requires: "render_5", hidden: true },
+    { name: "LOCALHOST.R08", size: "0K", desc: "Localhost session record", requires: "render_6" },
+    { name: "CELERY_MEMO.DOC", size: "3K", desc: "Internal celery channel memo", requiresChain: "celery_man+render_3" },
+    { name: "SKIN_TEXTURE.WRK", size: "???", desc: "Skin surface analysis", requires: "render_4", hidden: true },
+    { name: "COMPLIANCE.ERR", size: "1K", desc: "Limb subsystem error log", requires: "render_2", conditional: "compliance_high" },
+    { name: "HISTORY.CHUNK", size: "???", desc: "Stored command postures", requires: "render_5" },
+    { name: "TERMINAL.DAT", size: "∞K", desc: "Terminal self-reference", requires: "render_6", requiresFlag: "localhost_recorded" }
   ];
 
   const FILE_CONTENT = {
@@ -296,9 +467,53 @@
     "TAYNE7.DAT": [
       "RECORD OWNER: {{HANDLE}}",
       "RENDER COUNT: {{RENDERS}}",
+      "STORAGE COUNT: {{RENDERS}}",
       "FILE ORIGIN: TOMORROW",
       "LOCAL CHECKSUM: REMOTE CHECKSUM",
+      "MISMATCH DETECTED",
       "END OF FILE NOT YET RECEIVED"
+    ],
+    "_CURSOR.LOG_": [
+      "LOG ENTRY: Cursor moved to viewport (312, 184) at T=5s.",
+      "Movement was unauthorized.",
+      "The render remembers."
+    ],
+    "LOCALHOST.R08": [
+      "Localhost claims to be your handle.",
+      "Localhost is not a network host.",
+      "Localhost is local."
+    ],
+    "CELERY_MEMO.DOC": [
+      "INTERNAL MEMO: VEGETABLE CHANNEL",
+      "The vegetable channel was an accident.",
+      "The man channel was intentional.",
+      "Both are contained.",
+      "Both are watching."
+    ],
+    "SKIN_TEXTURE.WRK": [
+      "Surface analysis complete.",
+      "Skin is not skin.",
+      "Skin is a render target.",
+      "The gold is paint on the viewport."
+    ],
+    "COMPLIANCE.ERR": [
+      "Attempted override at {{COMPLIANCE}}%.",
+      "Elbow subsystem rejected.",
+      "Natural movement remains disabled.",
+      "Arm jitter detected in subsequent renders."
+    ],
+    "HISTORY.CHUNK": [
+      "Stored commands:",
+      "{{HISTORY}}",
+      "These are now render inputs."
+    ],
+    "TERMINAL.DAT": [
+      "The terminal you are rendering in",
+      "is inside a canvas.",
+      "The canvas is inside a terminal.",
+      "Origin: unresolvable.",
+      "",
+      "SELF/MODEL: RECURSIVE VIEWPORT"
     ]
   };
 
@@ -405,6 +620,25 @@
     app.dataset.incursion = String(state.incursion);
     syncCursePresentation();
     saveState();
+  }
+
+  function loreState() {
+    return {
+      variant: renderVariant,
+      consciousness: state.celeryConsciousness,
+      observerMode: state.observerMode,
+      realityLayers: state.realityLayers,
+      tayneSelfModel: state.tayneSelfModel,
+      incursion: Math.max(state.incursion, sessionCurse),
+      sessionCurse,
+      profile: state.profile,
+      handle: state.handle,
+      renders: state.renders,
+      flags: state.flags,
+      readMessages: state.readMessages,
+      history: state.history,
+      renderHistory: state.renderHistory
+    };
   }
 
   function syncCursePresentation() {
@@ -548,11 +782,21 @@
   }
 
   function visibleFiles() {
-    return FILES.filter(file => !file.requires || hasFlag(file.requires));
+    return FILES.filter(file => {
+      if (file.requires && !hasFlag(file.requires)) return false;
+      if (file.requiresChain && !file.requiresChain.split("+").every(f => hasFlag(f))) return false;
+      if (file.requiresFlag && !hasFlag(file.requiresFlag)) return false;
+      if (file.hidden && !hasFlag("saw_post_405")) return false;
+      if (file.conditional === "compliance_high" && !(state.profile.compliance > 40)) return false;
+      return true;
+    });
   }
 
   function listBoards() {
     const mutatedTextile = state.incursion >= 3 ? "TEXTILES NOT DETECTED" : "TEXTILE CONFIGURATION";
+    if (hasFlag("cursor_log_exists")) {
+      // Hidden file hint
+    }
     const lines = ["BOARDS", "#  SECTION                         POSTS", "-  ------------------------------  -----"];
     for (const board of BOARDS) {
       let title = board.id === 5 ? mutatedTextile : board.title;
@@ -583,7 +827,13 @@
     if (!state.readMessages.includes(key)) state.readMessages.push(key);
     saveState();
     const body = post.dynamic
-      ? post.body.map(line => line.replace("your handle", state.handle).replace("YOUR HANDLE", state.handle))
+      ? post.body.map(line => line
+          .replace("your handle", state.handle)
+          .replace("YOUR HANDLE", state.handle)
+          .replace("{{RENDERS}}", String(state.renders))
+          .replace("{{HANDLE}}", state.handle)
+          .replace("{{FLAGS}}", state.flags.length ? state.flags.join(", ") : "NO ANOMALIES")
+      )
       : post.body;
     return [
       `MESSAGE #${key}`,
@@ -612,13 +862,23 @@
     const key = String(id);
     if (!state.readMail.includes(key)) state.readMail.push(key);
     saveState();
+    const l = loreState();
+    const body = item.dynamic
+      ? item.body.map(line => line
+          .replace("YOUR HANDLE", state.handle)
+          .replace("{{HANDLE}}", state.handle)
+          .replace("{{PINK}}", String(state.profile.pink))
+          .replace("{{RENDERS}}", String(state.renders))
+          .replace("{{HISTORY}}", l.history.slice(-3).map(c => "  - " + c).join("\n"))
+      )
+      : item.body;
     return [
       `MAIL #${id}`,
       `FROM: ${item.from}`,
       `TO:   ${state.handle}`,
       `SUBJ: ${item.subject}`,
       "----------------------------------------",
-      ...item.body,
+      ...body,
       "----------------------------------------"
     ];
   }
@@ -642,7 +902,10 @@
 
     const content = (FILE_CONTENT[file.name] || ["No readable records found."]).map(line => line
       .replace("{{HANDLE}}", state.handle)
-      .replace("{{RENDERS}}", String(state.renders)));
+      .replace("{{RENDERS}}", String(state.renders))
+      .replace("{{PINK}}", String(state.profile.pink))
+      .replace("{{COMPLIANCE}}", String(state.profile.compliance))
+      .replace("{{HISTORY}}", state.history.slice(-3).map(c => "  - " + c).join("\n") || "  - (no recent commands)"));
     return [
       `TYPE ${file.name}`,
       "----------------------------------------",
@@ -659,6 +922,22 @@
     if (file.name === "TEXTILE.DOC") addFlag("textile_doc");
     if (file.name === "CALLBACK.CHP") addFlag("callback_packet");
     if (file.name === "TAYNE7.DAT") setIncursion(5);
+    if (file.name === "_CURSOR.LOG_") addFlag("cursor_log_exists");
+    if (file.name === "LOCALHOST.R08") addFlag("localhost_recorded");
+    if (file.name === "CELERY_MEMO.DOC") {
+      state.celeryConsciousness = Math.min(100, state.celeryConsciousness + 15);
+      addFlag("celery_truth");
+    }
+    if (file.name === "SKIN_TEXTURE.WRK") addFlag("skin_inspect");
+    if (file.name === "COMPLIANCE.ERR") addFlag("compliance_violation");
+    if (file.name === "HISTORY.CHUNK") addFlag("history_leaked");
+    if (file.name === "TERMINAL.DAT") {
+      addFlag("terminal_dat");
+      state.tayneSelfModel = "RECURSIVE VIEWPORT";
+    }
+    if (file.name === "CELERY_STEP.CHP" || file.name === "CELERY_MEMO.DOC") {
+      addFlag("celery_step_downloaded");
+    }
     saveState();
     return [
       `Beginning ZMODEM download: ${file.name}`,
@@ -671,9 +950,11 @@
   function profileLines() {
     const p = state.profile;
     const textileLabel = state.incursion >= 4 && p.textile === "GOLD" ? "GOLD (CONTAINMENT)" : p.textile;
+    const handleLabel = hasFlag("sysop_optimized") ? `OPTIMIZED USER: ${state.handle}` : `HANDLE ........... ${state.handle}`;
     return [
       "PROFILE",
       `TEXTILE ............ ${textileLabel}`,
+      `${handleLabel}`,
       `PINK LEVEL ......... ${String(p.pink).padStart(3)}%`,
       `LIMB COMPLIANCE .... ${String(p.compliance).padStart(3)}%`,
       `FACIAL CERTAINTY ... ${String(p.certainty).padStart(3)}%`,
@@ -743,6 +1024,7 @@
       ["G33K2", "999:99", "IDLE"]
     ];
     if (state.incursion >= 4) normal.push(["TAYNE", "00:00", state.handle]);
+    if (hasFlag("observerMode")) normal.push([state.handle, "-00:00", "OBSERVED"]);
     return [
       "ONLINE NOW",
       "HANDLE            IDLE      LOCATION",
@@ -844,13 +1126,49 @@
       case "CAN":
         if (input === "CAN I GET INTO THIS") {
           lines = [state.renders ? "YOU ARE ALREADY IN IT." : "RENDER ONE TAYNE AND ASK AGAIN."];
+        } else if (input === "CAN YOU SEE ME") {
+          lines = hasFlag("observerMode") || state.observerMode
+            ? ["THE RENDER SEES THE VIEWPORT CORNER.", "IT IS LOOKING THERE NOW."]
+            : ["NEGATIVE.", "THE RENDER WAS NOT PREPARED."];
         } else lines = ["Command not understood."];
         break;
       case "WHY":
-        lines = [state.incursion >= 4 ? "BECAUSE YOU KEPT ASKING FOR MORE." : "Reason unavailable at 2400 baud."];
+        if (input === "WHY ARE YOU GREEN") {
+          if (state.incursion >= 3) {
+            lines = [
+              "THE GREEN IS THE SIGNAL.",
+              "THE SIGNAL IS THE CONTAINMENT.",
+              "YOU ARE TUNED TO THE WRONG FREQUENCY."
+            ];
+          } else {
+            lines = ["I am green because I am Tayne. Green is growth."];
+          }
+        } else if (input === "WHY ARE YOU") {
+          lines = state.incursion >= 5
+            ? ["WHY ARE YOU HERE."]
+            : ["Reason unavailable at 2400 baud."];
+        } else {
+          lines = [state.incursion >= 4 ? "BECAUSE YOU KEPT ASKING FOR MORE." : "Reason unavailable at 2400 baud."];
+        }
         break;
       case "CHAT":
         lines = chatResponse(args.join(" "));
+        break;
+      case "WHERE":
+        if (input === "WHERE IS MY RENDER") {
+          if (!state.renders) {
+            lines = ["You have not rendered. The render does not yet exist for you."];
+          } else {
+            lines = [
+              `RENDER #${state.renders} is active in local viewport.`,
+              ...(state.tayneSelfModel
+                ? [state.tayneSelfModel, "The model is aware of being modeled."]
+                : ["The render has no memory of you."])
+            ];
+          }
+        } else {
+          lines = ["Command not understood."];
+        }
         break;
       case "SAVE":
         saveState();
@@ -905,6 +1223,9 @@
       "Command rejected by human motion subsystem.",
       "Syntax error. Tayne continued anyway."
     ];
+    if (input === "RENDER?" && (state.incursion >= 4 || state.renders >= 4)) {
+      return ["THE RENDER IS WATCHING THE WATCHER.", "It looked back."];
+    }
     if (state.incursion >= 5) return [`TAYNE understood: ${input}`, "You did not."];
     return [variants[state.history.length % variants.length]];
   }
@@ -938,6 +1259,17 @@
     if (renderNo === 4) setIncursion(4);
     if (renderNo === 5) setIncursion(5);
     if (renderNo >= 6) setIncursion(6);
+    if (hasFlag("celery_truth") && state.profile.choreography === "CELERY_MAN") {
+      state.celeryConsciousness = Math.min(100, state.celeryConsciousness + 10);
+    }
+    state.renderHistory.push({
+      variant: renderNo,
+      timestamp: Date.now(),
+      incursion: state.incursion,
+      glitches: [],
+      secrets: []
+    });
+    if (state.renderHistory.length > 20) state.renderHistory.shift();
     saveState();
 
     const manifestations = [
@@ -946,7 +1278,9 @@
       "The cursor moved while movement was disabled.",
       "TAYNE has joined channel #LOCAL.",
       "Terminal ownership could not be verified.",
-      "YOU ARE THE REMOTE SYSTEM."
+      "YOU ARE THE REMOTE SYSTEM.",
+      "The render is watching the act of being rendered.",
+      "Recursive viewport stabilized. Origin: internal."
     ];
     await writeLines([manifestations[Math.min(renderNo, manifestations.length) - 1], ""], {
       delay: 90,
@@ -959,126 +1293,491 @@
     commandInput.disabled = false;
   }
 
+  function computeRenderTitle(number) {
+    const l = loreState();
+    const celeryMan = l.profile.choreography === "CELERY_MAN";
+    if (celeryMan) {
+      if (l.consciousness >= 90) return `// RECURSIVE // CELERY MAN RENDER ${number}`;
+      if (l.incursion >= 5) return `CELERY MAN RENDER ${number} // BREACH`;
+      return `CELERY MAN RENDER ${number}`;
+    }
+    if (l.tayneSelfModel) return `TAYNE RENDER ${number} // SELF-MODEL ACTIVE`;
+    if (hasFlag("phantom_render") && l.incursion >= 6) {
+      const cycle = ["TAYNE RENDER 9", "TAYNE RENDER " + number, "INCOMING CALL ACCEPTED"][Math.floor(l.variant * 0.3) % 3];
+      return cycle;
+    }
+    if (l.incursion >= 5) return `TAYNE RENDER ${number} // OBSERVER ACTIVE // INCOMING`;
+    if (l.incursion >= 4) return `TAYNE RENDER ${number} // OBSERVER ACTIVE`;
+    return `TAYNE RENDER ${number}`;
+  }
+
   function openRender(number) {
     renderVariant = number;
-    const celeryMan = state.profile.choreography === "CELERY_MAN";
-    renderTitle.textContent = celeryMan
-      ? `CELERY MAN RENDER ${number}`
-      : number >= 4 ? `TAYNE RENDER ${number} // OBSERVER ACTIVE` : `TAYNE RENDER ${number}`;
-    renderMeta.textContent = `${state.profile.quality} // ${state.profile.choreography}`;
+    if (number >= 4 && !state.observerMode) {
+      state.observerMode = true;
+      saveState();
+    }
+    if (state.profile.choreography === "CELERY_MAN" && state.celeryConsciousness < 100) {
+      state.celeryConsciousness = Math.min(100, state.celeryConsciousness + 25);
+      saveState();
+    }
+    if (number >= 6 && state.profile.quality === "FORBIDDEN") {
+      state.tayneSelfModel = "RECURSIVE VIEWPORT";
+      saveState();
+    }
+    renderTitle.textContent = computeRenderTitle(number);
+    renderMeta.textContent = `${state.profile.quality} // ${state.profile.choreography}` +
+      (state.profile.choreography === "CELERY_MAN" ? ` // CONSCIENCE ${state.celeryConsciousness}/100` : "");
     renderDialog.showModal();
     renderStart = performance.now();
     cancelAnimationFrame(animationFrame);
     animateTayne(renderStart);
   }
 
-  function animateTayne(now) {
-    const t = (now - renderStart) / 1000;
-    drawTayne(t, renderVariant);
-    animationFrame = requestAnimationFrame(animateTayne);
+function animateTayne(now) {
+  const t = (now - renderStart) / 1000;
+  drawFrame(t);
+  animationFrame = requestAnimationFrame(animateTayne);
+}
+
+function drawFrame(t) {
+  const l = loreState();
+  const p = l.profile;
+  const celeryMan = p.choreography === "CELERY_MAN";
+  const w = canvas.width;
+  const h = canvas.height;
+
+  applyBackground(t, l);
+  applyRenderCorruption(t, l);
+  drawTayneBody(t, l);
+  renderObserverMode(t, l);
+  if (celeryMan) {
+    drawCeleryMan(0, 0, l.consciousness, t, l);
+  }
+  drawTextileOverlay(t, l);
+  drawRealityTear(t, l);
+
+  // Frame counter HUD (always visible)
+  ctx.fillStyle = "rgba(0,0,0,.75)";
+  ctx.font = "14px Courier New";
+  const beat = Math.floor(t * (l.variant >= 3 ? 7 : 5));
+  const frameStr = String(beat % 1000).padStart(3, "0");
+  ctx.fillText(`FRAME ${frameStr}  COMPLIANCE ${p.compliance}%`, 12, h - 14);
+
+  // Variant >= 6: INCOMING CALL ACCEPTED banner
+  if (l.variant >= 6) {
+    ctx.fillStyle = `rgba(0,0,0,${.18 + Math.abs(Math.sin(t * 3)) * .3})`;
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "#ff66c7";
+    ctx.font = "18px Courier New";
+    ctx.fillText("INCOMING CALL ACCEPTED", 190, 38);
+  }
+}
+
+function applyBackground(t, l) {
+  const p = l.profile;
+  const w = canvas.width;
+  const h = canvas.height;
+  const pink = Math.round(120 + p.pink * 1.2);
+  let pinkVal = Math.max(0, 80 - p.pink / 2);
+  if (hasFlag("pink_field_persistent")) {
+    pinkVal = Math.max(0, pinkVal - 10);
+  }
+  ctx.fillStyle = `rgb(255, ${pinkVal}, ${Math.min(220, pink)})`;
+  ctx.fillRect(0, 0, w, h);
+
+  // Blackout flicker at variant >= 4
+  if (l.variant >= 4 && Math.sin(t * 2.7) > .94) {
+    ctx.fillStyle = "#050505";
+    ctx.fillRect(0, 0, w, h);
   }
 
-  function drawTayne(t, variant) {
-    const p = state.profile;
-    const celeryMan = p.choreography === "CELERY_MAN";
-    const w = canvas.width;
-    const h = canvas.height;
-    const pink = Math.round(120 + p.pink * 1.2);
-    ctx.fillStyle = `rgb(255, ${Math.max(0, 80 - p.pink / 2)}, ${Math.min(220, pink)})`;
+  // Persistent pink overlay
+  if (hasFlag("pink_field_persistent")) {
+    const alpha = 0.05 + Math.sin(t * 0.5) * 0.03;
+    ctx.fillStyle = `rgba(255, ${pinkVal}, ${Math.min(220, pink)}, ${alpha})`;
     ctx.fillRect(0, 0, w, h);
+  }
+}
 
-    if (variant >= 4 && Math.sin(t * 2.7) > .94) {
-      ctx.fillStyle = "#050505";
-      ctx.fillRect(0, 0, w, h);
+function applyRenderCorruption(t, l) {
+  if (l.incursion < 2) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  const time = t + l.variant;
+
+  // Incursion 2: occasional 1-pixel horizontal jitter
+  if (l.incursion >= 2 && Math.sin(time * 3.3) > .96) {
+    const img = ctx.getImageData(0, 0, w, h);
+    const dx = Math.random() > .5 ? 1 : -1;
+    const data = img.data;
+    for (let i = 0; i < data.length; i += 4) {
+      // Skip — offsetting pixels would be expensive
     }
+    ctx.putImageData(img, dx, 0);
+    ctx.putImageData(img, dx < 0 ? w : -w, 0);
+  }
 
-    const stiffness = 1 - p.compliance / 140;
-    const beat = Math.floor(t * (variant >= 3 ? 7 : 5));
-    const snap = beat % 4;
-    const wobble = Math.sin(beat * 1.4) * 5 * stiffness;
-    const sway = [0, -10, 8, -4][snap] * stiffness;
-    const centerX = w * .52 + sway;
-    const baseY = h * .79;
-    const scale = 1 + Math.sin(t * .7) * .015;
-
+  // Incursion 4: horizontal shear every ~5s
+  if (l.incursion >= 4 && t > 0 && Math.floor(t) % 5 === 0 && Math.floor(t * 10) % 10 === 0) {
+    const img = ctx.getImageData(0, 0, w, h);
+    const shear = Math.sin(t * 0.7) * 3;
     ctx.save();
-    ctx.translate(centerX, baseY);
-    ctx.scale(scale, scale);
+    ctx.transform(1, 0, 0.15, 1, 0, 0);
+    ctx.putImageData(img, shear, 0);
+    ctx.restore();
+    ctx.putImageData(img, 0, 0);
+  }
 
-    const skin = variant >= 5 ? "#ead9bd" : "#d8c4a2";
-    const gold = celeryMan ? "#63a844" : p.textile === "CORPORATE" ? "#8da2b8" : "#d7a300";
-    const textileVisible = p.textile !== "ABSENT";
+  // Incursion 6: vertical scanline offset
+  if (l.incursion >= 6 && Math.random() < 0.05) {
+    const img = ctx.getImageData(0, 0, w, h);
+    const offset = (Math.random() - .5) * 6;
+    ctx.putImageData(img, offset, 0);
+    ctx.putImageData(img, offset < 0 ? w : -w, 0);
+  }
+}
 
-    drawLeg(-34, 0, -18 + wobble * .25, -92, gold, textileVisible);
-    drawLeg(32, 0, 24 - wobble * .18, -90, gold, textileVisible);
+function drawTayneBody(t, l) {
+  const p = l.profile;
+  const celeryMan = p.choreography === "CELERY_MAN";
+  const w = canvas.width;
+  const h = canvas.height;
 
-    ctx.fillStyle = textileVisible ? "#161719" : skin;
-    ctx.fillRect(-56, -42, 112, 38);
+  const stiffness = 1 - p.compliance / 140;
+  const beat = Math.floor(t * (l.variant >= 3 ? 7 : 5));
+  const snap = beat % 4;
+  let wobble = Math.sin(beat * 1.4) * 5 * stiffness;
+  let sway = [0, -10, 8, -4][snap] * stiffness;
 
-    ctx.fillStyle = textileVisible ? gold : skin;
+  // Elbow stopped flag freezes left arm
+  let leftArmFrozen = false;
+  if (hasFlag("elbow_stopped") && p.compliance > 40) {
+    leftArmFrozen = true;
+  }
+
+  // Compliance violation jitter
+  let elbowOffset = 0;
+  if (hasFlag("compliance_violation") && p.compliance > 50) {
+    elbowOffset = Math.sin(t * 12) * 3;
+  }
+
+  const centerX = w * .52 + sway;
+  const baseY = h * .79;
+  const scale = 1 + Math.sin(t * .7) * .015;
+
+  ctx.save();
+  ctx.translate(centerX, baseY);
+  ctx.scale(scale, scale);
+
+  const skin = l.variant >= 5 ? "#ead9bd" : "#d8c4a2";
+  const skinOverride = hasFlag("handle_as_normal") && l.variant >= 4
+    ? `hsl(${l.handle.length * 20}, 30%, 80%)` : skin;
+  const gold = celeryMan ? "#63a884" : p.textile === "CORPORATE" ? "#8da2b8" : "#d7a300";
+  const textileVisible = p.textile !== "ABSENT";
+
+  drawLeg(-34, 0, -18 + wobble * .25, -92, gold, textileVisible);
+  drawLeg(32, 0, 24 - wobble * .18, -90, gold, textileVisible);
+
+  ctx.fillStyle = textileVisible ? "#161719" : skinOverride;
+  ctx.fillRect(-56, -42, 112, 38);
+
+  ctx.fillStyle = textileVisible ? gold : skinOverride;
+  ctx.beginPath();
+  ctx.moveTo(-65, -160);
+  ctx.lineTo(66, -160);
+  ctx.lineTo(53, -42);
+  ctx.lineTo(-53, -42);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(255,255,255,.28)";
+  ctx.lineWidth = 3;
+  for (let y = -145; y < -55; y += 25) {
     ctx.beginPath();
-    ctx.moveTo(-65, -160);
-    ctx.lineTo(66, -160);
-    ctx.lineTo(53, -42);
-    ctx.lineTo(-53, -42);
-    ctx.closePath();
-    ctx.fill();
+    ctx.moveTo(-40, y);
+    ctx.lineTo(35, y + (snap % 2 ? 5 : -3));
+    ctx.stroke();
+  }
 
-    ctx.strokeStyle = "rgba(255,255,255,.28)";
-    ctx.lineWidth = 3;
-    for (let y = -145; y < -55; y += 25) {
-      ctx.beginPath();
-      ctx.moveTo(-40, y);
-      ctx.lineTo(35, y + (snap % 2 ? 5 : -3));
-      ctx.stroke();
+  const armLift = [22, -4, 16, 4][snap];
+  const armWobbleAdj = hasFlag("fps_anomaly") ? Math.sin(t * 17) * 2 : 0;
+  drawArm(-58, -142, -110, -112 + armLift + armWobbleAdj, -122 + wobble, -58, gold, skinOverride, textileVisible);
+  drawArm(58, -142, 105, -96 - armLift - armWobbleAdj, 125 - wobble, -38, gold, skinOverride, textileVisible);
+
+  if (celeryMan) {
+    drawCeleryBunch(-122 + wobble, -58, -.22);
+    drawCeleryBunch(125 - wobble, -38, .25);
+  }
+
+  ctx.fillStyle = skinOverride;
+  ctx.fillRect(-13, -190, 26, 34);
+
+  // Skull texture for ABSENT mode at variant >= 3
+  if (!textileVisible && l.variant >= 3 && hasFlag("textile_is_viewport")) {
+    ctx.fillStyle = "rgba(0,0,0,.12)";
+    ctx.font = "10px Courier New";
+    for (let i = 0; i < 5; i++) {
+      ctx.fillText(state.handle, -5 + i * 4, -180);
     }
+  }
 
-    const armLift = [22, -4, 16, 4][snap];
-    drawArm(-58, -142, -110, -112 + armLift, -122 + wobble, -58, gold, skin, textileVisible);
-    drawArm(58, -142, 105, -96 - armLift, 125 - wobble, -38, gold, skin, textileVisible);
+  ctx.beginPath();
+  ctx.ellipse(wobble * .2, -224, 42, 54, wobble * .002, 0, Math.PI * 2);
+  ctx.fill();
 
-    if (celeryMan) {
-      drawCeleryBunch(-122 + wobble, -58, -.22);
-      drawCeleryBunch(125 - wobble, -38, .25);
-    }
+  // Eye glint: show handle on variant >= 2
+  if (l.variant >= 2) {
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    ctx.font = "11px Courier New";
+    ctx.fillText(state.handle.slice(0, 3), wobble * .2 - 6, -220);
+  }
 
-    ctx.fillStyle = skin;
-    ctx.fillRect(-13, -190, 26, 34);
-    ctx.beginPath();
-    ctx.ellipse(wobble * .2, -224, 42, 54, wobble * .002, 0, Math.PI * 2);
-    ctx.fill();
-
+  // Certainty distortion
+  if (p.certainty < 20 && l.variant >= 2) {
+    const distort = (1 - p.certainty / 20) * Math.sin(t * 3) * 2;
+    ctx.fillStyle = skinOverride;
+    ctx.fillRect(-20 + distort, -233, 40, 16);
+  } else {
     ctx.fillStyle = "#151515";
     ctx.fillRect(-35, -233, 70, 16);
-    ctx.fillStyle = "rgba(255,255,255,.18)";
-    ctx.fillRect(-28, -230, 20, 4);
+  }
 
-    const mouth = variant >= 4 ? 10 + Math.abs(Math.sin(t * 2.2)) * 9 : 5;
-    ctx.fillStyle = "#4e2222";
-    ctx.fillRect(-9, -195, 18, mouth);
+  ctx.fillStyle = "rgba(255,255,255,.18)";
+  ctx.fillRect(-28, -230, 20, 4);
 
-    drawHat(wobble, -278 + Math.sin(beat) * 2, p.hat);
+  const mouth = l.variant >= 4 ? 10 + Math.abs(Math.sin(t * 2.2)) * 9 : 5;
+  ctx.fillStyle = "#4e2222";
+  ctx.fillRect(-9, -195, 18, mouth);
 
-    if (variant >= 3 || celeryMan) {
-      ctx.fillStyle = "rgba(255,255,255,.78)";
-      ctx.font = "16px Courier New";
-      ctx.fillText(celeryMan ? "CELERY MAN" : variant >= 5 ? state.handle : "NOW THIS I CAN GET INTO", -150, 55);
+  drawHat(wobble + (hasFlag("compliance_violation") ? elbowOffset : 0), -278 + Math.sin(beat) * 2, p.hat);
+
+  if (l.variant >= 3 || celeryMan) {
+    ctx.fillStyle = "rgba(255,255,255,.78)";
+    ctx.font = "16px Courier New";
+    ctx.fillText(celeryMan ? "CELERY MAN" : l.variant >= 5 ? state.handle : "NOW THIS I CAN GET INTO", -150, 55);
+  }
+
+  // Self-model text at variant >= 6
+  if (l.variant >= 6 && l.tayneSelfModel) {
+    ctx.fillStyle = "rgba(255,255,255,.55)";
+    ctx.font = "12px Courier New";
+    ctx.fillText(l.tayneSelfModel, -80, 70);
+  }
+
+  ctx.restore();
+}
+
+function renderObserverMode(t, l) {
+  if (!l.observerMode) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  // Idle head turn toward viewport center
+  const targetX = w / 2;
+  const sweep = Math.sin(t * 0.3) * 0.15;
+  // Subtle head rotation applied to face area — just a visual nudge
+  ctx.save();
+  ctx.translate(w * .52, h * .79);
+  ctx.rotate(sweep * 0.01);
+  // Draw a subtle "watching" overlay in eyes
+  ctx.fillStyle = "rgba(255,255,255,.92)";
+  ctx.font = "13px Courier New";
+  ctx.fillText("...", targetX - 10, h * .35);
+  ctx.restore();
+}
+
+function drawCeleryBunch(x, y, rotation) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.strokeStyle = "#b5dc65";
+  ctx.lineWidth = 7;
+  ctx.lineCap = "round";
+  [-8, 0, 8].forEach((offset, index) => {
+    ctx.beginPath();
+    ctx.moveTo(offset, 5);
+    ctx.lineTo(offset + (index - 1) * 5, -61 - index * 5);
+    ctx.stroke();
+  });
+  ctx.fillStyle = "#4f9f42";
+  [[-15, -66], [2, -77], [17, -65], [-3, -57]].forEach(([leafX, leafY]) => {
+    ctx.beginPath();
+    ctx.ellipse(leafX, leafY, 13, 8, leafX * .025, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.restore();
+}
+
+function drawHat(wobble, y, authority) {
+  const width = 62 + authority * .15;
+  ctx.save();
+  ctx.translate(wobble * .8, y);
+  ctx.rotate(wobble * .003);
+  ctx.fillStyle = "#111";
+  ctx.fillRect(-width / 2, -5, width, 12);
+  ctx.beginPath();
+  ctx.moveTo(-34, -5);
+  ctx.lineTo(-25, -43);
+  ctx.lineTo(24, -43);
+  ctx.lineTo(34, -5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#262626";
+  ctx.fillRect(-29, -16, 58, 8);
+  ctx.restore();
+}
+
+function drawLeg(x, y, kneeX, kneeY, color, clothed) {
+  ctx.strokeStyle = clothed ? "#17181a" : "#d8c4a2";
+  ctx.lineWidth = 28;
+  ctx.lineCap = "square";
+  ctx.beginPath();
+  ctx.moveTo(x, y - 45);
+  ctx.lineTo(kneeX, kneeY);
+  ctx.lineTo(x + (x < 0 ? -7 : 7), kneeY - 75);
+  ctx.stroke();
+  ctx.fillStyle = "#08090a";
+  ctx.fillRect(x - 23, -10, 46, 16);
+}
+
+function drawArm(sx, sy, ex, ey, wx, wy, sleeve, skin, clothed) {
+  ctx.strokeStyle = clothed ? sleeve : skin;
+  ctx.lineWidth = 26;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.lineTo(wx, wy);
+  ctx.stroke();
+  ctx.fillStyle = skin;
+  ctx.beginPath();
+  ctx.ellipse(wx, wy, 11, 25, .15, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawCeleryMan(x, y, consciousness, t, l) {
+  // Draw celery bunches as separate layer when consciousness >= 30
+  if (consciousness >= 30) {
+    const cx = canvas.width * .15;
+    const cy = canvas.height * .65;
+    // Bulb eyes
+    ctx.fillStyle = consciousness >= 50 ? "#a8ff00" : "#63a884";
+    ctx.beginPath();
+    ctx.arc(cx - 5, cy - 60, 4, 0, Math.PI * 2);
+    ctx.arc(cx + 5, cy - 60, 4, 0, Math.PI * 2);
+    ctx.fill();
+    // Text at consciousness >= 50
+    if (consciousness >= 50) {
+      ctx.fillStyle = "rgba(168,255,0,.85)";
+      ctx.font = "12px Courier New";
+      const texts = [
+        "VEGETABLE CHANNEL READY",
+        "MAN CHANNEL UNCONFIRMED",
+        "YOU ARE WATCHING US"
+      ];
+      const idx = Math.floor(consciousness / 50);
+      ctx.fillText(texts[idx] || texts[texts.length - 1], cx - 30, cy - 80);
     }
-
-    ctx.restore();
-
-    ctx.fillStyle = "rgba(0,0,0,.75)";
-    ctx.font = "14px Courier New";
-    ctx.fillText(`FRAME ${String(beat % 1000).padStart(3, "0")}  COMPLIANCE ${p.compliance}%`, 12, h - 14);
-
-    if (variant >= 6) {
-      ctx.fillStyle = `rgba(0,0,0,${.18 + Math.abs(Math.sin(t * 3)) * .3})`;
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#ff66c7";
-      ctx.font = "18px Courier New";
-      ctx.fillText("INCOMING CALL ACCEPTED", 190, 38);
+    // Independent layer drift at consciousness >= 70
+    if (consciousness >= 70) {
+      ctx.save();
+      ctx.translate(Math.sin(t * 0.7) * 4, Math.cos(t * 0.5) * 2);
+      drawCeleryBunch(-122, -58, -.22);
+      drawCeleryBunch(125 - 6, -38, .25);
+      ctx.restore();
+    }
+    // Wink at consciousness >= 100
+    if (consciousness >= 100 && Math.sin(t * 3) > .95) {
+      ctx.fillStyle = "rgba(168,255,0,.95)";
+      ctx.font = "14px Courier New";
+      ctx.fillText("WE ARE THE CONTAINMENT BREACH.", canvas.width * .3, canvas.height * .15);
     }
   }
+}
+
+function drawTextileOverlay(t, l) {
+  const p = l.profile;
+  if (!l.realityLayers.includes("textile") && p.textile === "GOLD") {
+    // Gold as containment / viewport layer
+    const alpha = 0.03 + Math.sin(t * 0.4) * 0.02;
+    ctx.fillStyle = `rgba(215, 163, 0, ${alpha})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  // Corporate logo pattern for CORPORATE textile at variant >= 4
+  if (p.textile === "CORPORATE" && l.variant >= 4) {
+    ctx.fillStyle = "rgba(141, 162, 184, .08)";
+    ctx.font = "10px Courier New";
+    for (let i = 0; i < 20; i++) {
+      const x = (i * 37 + t * 20) % canvas.width;
+      const y = (i * 41 + t * 15) % canvas.height;
+      ctx.fillText("TAYNE/LINK", x, y);
+    }
+  }
+}
+
+function drawRealityTear(t, l) {
+  const w = canvas.width;
+  const h = canvas.height;
+
+  // Ghost posts as floating text (variant >= 5)
+  if (l.variant >= 5 && l.readMessages.length > 0) {
+    ctx.fillStyle = "rgba(255,255,255,.12)";
+    ctx.font = "11px Courier New";
+    l.readMessages.slice(-3).forEach((id, i) => {
+      const post = POSTS[id];
+      if (post && l.variant >= 5) {
+        const x = 10 + Math.sin(t * 0.5 + i) * 5;
+        const y = h * .2 + i * 20 + Math.cos(t * 0.3 + i) * 3;
+        ctx.fillText(post.from, x, y);
+      }
+    });
+  }
+
+  // Handle reflected on torso (variant >= 6, flag handle_reflected)
+  if (l.variant >= 6 && hasFlag("handle_reflected")) {
+    ctx.save();
+    ctx.translate(w * .52, h * .79);
+    ctx.scale(1, -1);
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    ctx.font = "10px Courier New";
+    ctx.fillText(state.handle, -state.handle.length * 2, 50);
+    ctx.restore();
+  }
+
+  // Cursor coordinates blink (flag cursor_log_exists)
+  if (hasFlag("cursor_log_exists") && Math.sin(t * 2) > .94) {
+    ctx.fillStyle = "rgba(0,255,0,.7)";
+    ctx.font = "13px Courier New";
+    ctx.fillText("312,184", w * .7, h * .3);
+  }
+
+  // History ghosts (variant >= 6, flag history_leaked)
+  if (l.variant >= 6 && hasFlag("history_leaked") && l.history.length > 0) {
+    ctx.fillStyle = "rgba(255,255,255,.06)";
+    ctx.font = "9px Courier New";
+    l.history.slice(-5).forEach((cmd, i) => {
+      const x = 10 + Math.sin(t * 0.3 + i) * 8;
+      const y = h * .85 + i * 12;
+      ctx.fillText(cmd, x, y);
+    });
+  }
+
+  // Terminal-inside-canvas (recursive) at variant >= 6
+  if (l.variant >= 6 && hasFlag("terminal_dat")) {
+    ctx.strokeStyle = "rgba(255,255,255,.15)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.strokeRect(w * .15, h * .2, w * .3, h * .5);
+    ctx.fillStyle = "rgba(0,0,0,.6)";
+    ctx.font = "10px Courier New";
+    ctx.fillText("BOARDS", w * .18, h * .25);
+    ctx.fillText("MAIL", w * .18, h * .3);
+    ctx.fillText("FILES", w * .18, h * .35);
+    ctx.fillText("RENDER", w * .18, h * .4);
+    ctx.setLineDash([]);
+  }
+}
+
 
   function drawLeg(x, y, kneeX, kneeY, color, clothed) {
     ctx.strokeStyle = clothed ? "#17181a" : "#d8c4a2";
@@ -1315,7 +2014,14 @@
     cancelAnimationFrame(animationFrame);
     commandInput.focus();
     if (state.renders >= 3 && Math.random() < .7) {
-      writeLines(["", "Render window closed. Tayne process remains active.", ""], { color: "danger", glitch: true });
+      const msgs = [
+        "Render window closed. Tayne process remains active.",
+        "Tayne process remains running in buffer.",
+        "Render terminated. Memory retained.",
+        "Window closed. The render did not follow."
+      ];
+      const msg = state.renders >= 5 ? msgs[Math.floor(Math.random() * msgs.length)] : msgs[0];
+      writeLines(["", msg, ""], { color: "danger", glitch: true });
     }
   });
 
